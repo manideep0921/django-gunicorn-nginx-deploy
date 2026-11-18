@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,11 +23,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'dev-only-insecure-key')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', '0') == '1'
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# No insecure default: the key must come from the environment. A throwaway key is
+# allowed only for local development (DJANGO_DEBUG=1) and for `manage.py test`.
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', '')
+_DEV_OR_TEST = DEBUG or 'test' in sys.argv
+if not SECRET_KEY and _DEV_OR_TEST:
+    SECRET_KEY = 'dev-only-insecure-key'
+if not _DEV_OR_TEST and (not SECRET_KEY or SECRET_KEY.startswith('change-me')):
+    raise ImproperlyConfigured(
+        'Set DJANGO_SECRET_KEY to a long random value '
+        '(e.g. python -c "import secrets; print(secrets.token_urlsafe(50))").'
+    )
 
 ALLOWED_HOSTS = [h for h in os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',') if h]
 
