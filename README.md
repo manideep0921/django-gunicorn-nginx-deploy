@@ -19,6 +19,7 @@ A small Django notes API deployed the traditional way on Ubuntu:
 python3 -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 python manage.py test
+export DJANGO_DEBUG=1   # local dev only: allows a throwaway secret key; production must set DJANGO_SECRET_KEY
 GUNICORN_BIND=127.0.0.1:8000 gunicorn -c deploy/gunicorn.conf.py config.wsgi:application
 curl localhost:8000/healthz
 ```
