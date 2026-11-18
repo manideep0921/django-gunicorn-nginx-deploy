@@ -33,4 +33,7 @@ Create the database first:
 ```sql
 CREATE USER notes WITH PASSWORD '...'; CREATE DATABASE notes OWNER notes;
 ```
-Add HTTPS with `certbot --nginx` and set `DJANGO_HTTPS=1`.
+## HTTPS status
+**HTTPS is not configured by this repository.** `deploy/nginx.conf` listens on port 80 only (`server_name _`) and `deploy/deploy.sh` does not obtain or install certificates, so a fresh deploy serves plain HTTP.
+
+The Django side is ready for TLS terminated at Nginx: with `DJANGO_HTTPS=1` (and `DJANGO_DEBUG=0`) it enables the HTTPS redirect and secure cookies, and it trusts `X-Forwarded-Proto`. To enable HTTPS you would, on a server with a real DNS name pointing at it, set `server_name` to that domain, obtain a certificate (for example `sudo certbot --nginx -d example.com`), then set `DJANGO_HTTPS=1` in `/etc/notes/env` and restart. That procedure is a manual step and has not been verified for this project.
